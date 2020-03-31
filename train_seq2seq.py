@@ -13,9 +13,9 @@ dataset_file = os.path.join(os.path.abspath('.'), 'dataset', 'COVID-Dialogue.txt
 
 
 class Config(object):
-	embedding_dim = 100
-	hidden_dim = 50
-	batch_size = 128
+	embedding_dim = 128
+	hidden_dim = 64
+	batch_size = 64
 	learning_rate = 0.005
 	source_vocab_size = None
 	target_vocab_size = None
@@ -82,27 +82,27 @@ def doc_to_seq(docs):
 	return seqs, w2i, i2w
 
 
-def get_batch(docs_source, w2i_source, docs_target, w2i_target, batch_size):
-	ps = []
-	while len(ps) < batch_size:
-		ps.append(random.randint(0, len(docs_source)-1))
-	
+def get_batch(docs_source, w2i_source, docs_target, w2i_target, batch_size, batch_num):
+	source_len = len(docs_source)
+
 	source_batch = []
 	target_batch = []
 	
-	source_lens = [len(docs_source[p]) for p in ps]
-	target_lens = [len(docs_target[p])+1 for p in ps]
+	source_lens = [len(docs_source[(batch_num + i) % source_len]) for i in range(batch_size)]
+	target_lens = [len(docs_target[(batch_num + i) % source_len]) for i in range(batch_size)]
 	
 	max_source_len = max(source_lens)
 	max_target_len = max(target_lens)
 		
-	for p in ps:
-		source_seq = [w2i_source[w] for w in docs_source[p]] + [w2i_source["_PAD"]]*(max_source_len-len(docs_source[p]))
-		target_seq = [w2i_target[w] for w in docs_target[p]] + [w2i_target["_EOS"]] + [w2i_target["_PAD"]]*(max_target_len-1-len(docs_target[p]))
+	for i in range(batch_size):
+		source_seq = [w2i_source[w] for w in docs_source[(batch_num + i) % source_len]] +
+						[w2i_source["_PAD"]]*(max_source_len-len(docs_source[(batch_num + i) % source_len]))
+		target_seq = [w2i_target[w] for w in docs_target[(batch_num + i) % source_len]] + [w2i_target["_EOS"]] +
+						[w2i_target["_PAD"]]*(max_target_len-1-len(docs_target[(batch_num + i) % source_len]))
 		source_batch.append(source_seq)
 		target_batch.append(target_seq)
 	
-	return source_batch, source_lens, target_batch, target_lens
+	return source_batch, source_lens, target_batch, target_lens, (batch_num + batch_size) % batch_size
 	
 	
 if __name__ == "__main__":
@@ -120,9 +120,10 @@ if __name__ == "__main__":
 	
 	
 	print("(3) run model......")
-	batches = 3000
+	batches = 30000
 	print_every = 100
-	
+	batch_num = 0
+	epoch = 20
 	with tf.Session(config=tf_config) as sess:
 		tf.summary.FileWriter('graph', sess.graph)
 		saver = tf.train.Saver()
@@ -130,37 +131,38 @@ if __name__ == "__main__":
 		
 		losses = []
 		total_loss = 0
-		for batch in range(batches):
-			source_batch, source_lens, target_batch, target_lens = get_batch(docs_source, w2i_source, docs_target, w2i_target, config.batch_size)
-			
-			feed_dict = {
-				model.seq_inputs: source_batch,
-				model.seq_inputs_length: source_lens,
-				model.seq_targets: target_batch,
-				model.seq_targets_length: target_lens
-			}
-			
-			loss, _ = sess.run([model.loss, model.train_op], feed_dict)
-			total_loss += loss
-			
-			if batch % print_every == 0 and batch > 0:
-				print_loss = total_loss if batch == 0 else total_loss / print_every
-				losses.append(print_loss)
-				total_loss = 0
-				print("-----------------------------")
-				print("batch:",batch,"/",batches)
-				print("time:",time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
-				print("loss:",print_loss)
+		for _ in range(epoch):
+			for batch in range(batches):
+				source_batch, source_lens, target_batch, target_lens, batch_num = get_batch(docs_source, w2i_source, docs_target, w2i_target, config.batch_size, batch_num)
 				
-				print("samples:\n")
-				predict_batch = sess.run(model.out, feed_dict)
-				for i in range(3):
-					print("in:", [i2w_source[num] for num in source_batch[i] if i2w_source[num] != "_PAD"])
-					print("out:",[i2w_target[num] for num in predict_batch[i] if i2w_target[num] != "_PAD"])
-					print("tar:",[i2w_target[num] for num in target_batch[i] if i2w_target[num] != "_PAD"])
-					print("")
-		
-		print(losses)
+				feed_dict = {
+					model.seq_inputs: source_batch,
+					model.seq_inputs_length: source_lens,
+					model.seq_targets: target_batch,
+					model.seq_targets_length: target_lens
+				}
+				
+				loss, _ = sess.run([model.loss, model.train_op], feed_dict)
+				total_loss += loss
+				
+				if batch % print_every == 0 and batch > 0:
+					print_loss = total_loss if batch == 0 else total_loss / print_every
+					losses.append(print_loss)
+					total_loss = 0
+					print("-----------------------------")
+					print("batch:",batch,"/",batches)
+					print("time:",time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
+					print("loss:",print_loss)
+					
+					print("samples:\n")
+					predict_batch = sess.run(model.out, feed_dict)
+					for i in range(3):
+						print("in:", [i2w_source[num] for num in source_batch[i] if i2w_source[num] != "_PAD"])
+						print("out:",[i2w_target[num] for num in predict_batch[i] if i2w_target[num] != "_PAD"])
+						print("tar:",[i2w_target[num] for num in target_batch[i] if i2w_target[num] != "_PAD"])
+						print("")
+			
+			print(losses)
 		print(saver.save(sess, "checkpoint/model.ckpt"))		
 		
 	
