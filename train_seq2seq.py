@@ -77,7 +77,7 @@ def make_vocab(docs):
 	i2w = {0:"_PAD", 1:"_GO", 2:"_EOS"}
 	for doc in docs:
 		for w in doc:
-    		word = w.lower()
+			word = w.lower()
 			if word not in w2i:
 				i2w[len(w2i)] = word
 				w2i[word] = len(w2i)
