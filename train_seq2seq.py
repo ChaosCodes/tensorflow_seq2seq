@@ -53,7 +53,23 @@ def load_data(path):
 					docs_source.append(last_sentence.split())
 					docs_target.append(current_sentence.split())
 				last_sentence = current_sentence
-	return docs_source, docs_target
+		idx = list(range(len(docs_source)))
+		random.shuffle(idx)
+		train_idx = idx[:int(len(idx) * 0.8)]
+		val_idx = idx[int(len(idx) * 0.8): int(len(idx) * 0.9)]
+		test_idx = idx[int(len(idx) * 0.9):]
+
+		docs_source = np.array(docs_source)
+		docs_target = np.array(docs_target)
+
+		train_source = docs_source[train_idx]
+		train_target = docs_target[train_idx]
+		val_source = docs_source[val_idx]
+		val_target = docs_target[val_idx]
+		test_source = docs_source[test_idx]
+		test_target = docs_target[test_idx]
+
+	return docs_source, docs_target, train_source, train_target, val_source, val_target, test_source, test_target
 
 	
 def make_vocab(docs):
@@ -82,7 +98,7 @@ def doc_to_seq(docs):
 	return seqs, w2i, i2w
 
 
-def get_batch(docs_source, w2i_source, docs_target, w2i_target, batch_size, batch_num):
+def get_batch(docs_source, w2i_source, docs_target, w2i_target, batch_size, batch_num, mode='train'):
 	# source_len = len(docs_source)
 
 	# source_batch = []
@@ -100,6 +116,8 @@ def get_batch(docs_source, w2i_source, docs_target, w2i_target, batch_size, batc
 	# 	source_batch.append(source_seq)
 	# 	target_batch.append(target_seq)
 	ps = []
+	if mode != 'train':
+    		batch_size = len(docs_source)
 	while len(ps) < batch_size:	
 		ps.append(batch_num)
 		batch_num = batch_num + 1
@@ -129,7 +147,7 @@ def get_batch(docs_source, w2i_source, docs_target, w2i_target, batch_size, batc
 if __name__ == "__main__":
 
 	print("(1)load data......")
-	docs_source, docs_target = load_data(dataset_file)
+	docs_source, docs_target, train_source, train_target, val_source, val_target, test_source, test_target = load_data(dataset_file)
 	w2i_source, i2w_source = make_vocab(docs_source)
 	w2i_target, i2w_target = make_vocab(docs_target)
 	
@@ -141,7 +159,7 @@ if __name__ == "__main__":
 	
 	
 	print("(3) run model......")
-	batches = 30000
+	batches = 3000
 	print_every = 100
 	batch_num = 0
 	epoch = 20
@@ -154,7 +172,7 @@ if __name__ == "__main__":
 		total_loss = 0
 		for _ in range(epoch):
 			for batch in range(batches):
-				source_batch, source_lens, target_batch, target_lens, batch_num = get_batch(docs_source, w2i_source, docs_target, w2i_target, config.batch_size, batch_num)
+				source_batch, source_lens, target_batch, target_lens, batch_num = get_batch(train_source, w2i_source, train_target, w2i_target, config.batch_size, batch_num, 'train')
 				
 				feed_dict = {
 					model.seq_inputs: source_batch,
@@ -167,6 +185,7 @@ if __name__ == "__main__":
 				total_loss += loss
 				
 				if batch % print_every == 0 and batch > 0:
+
 					print_loss = total_loss if batch == 0 else total_loss / print_every
 					losses.append(print_loss)
 					total_loss = 0
@@ -176,12 +195,37 @@ if __name__ == "__main__":
 					print("loss:",print_loss)
 					
 					print("samples:\n")
+					source_batch, source_lens, target_batch, target_lens, _ = get_batch(val_source, w2i_source, val_target, w2i_target, config.batch_size, 0, 'val')
+					val_feed_dict = {
+						model.seq_inputs: source_batch,
+						model.seq_inputs_length: source_lens,
+						model.seq_targets: target_batch,
+						model.seq_targets_length: target_lens
+					}
 					predict_batch = sess.run(model.out, feed_dict)
+					show_list = list(range(len(source_batch)))
+					random.shuffle(show_list)
 					for i in range(3):
-						print("in:", [i2w_source[num] for num in source_batch[i] if i2w_source[num] != "_PAD"])
-						print("out:",[i2w_target[num] for num in predict_batch[i] if i2w_target[num] != "_PAD"])
-						print("tar:",[i2w_target[num] for num in target_batch[i] if i2w_target[num] != "_PAD"])
+						print("in:", [i2w_source[num] for num in source_batch[show_list[i]] if i2w_source[num] != "_PAD"])
+						print("out:",[i2w_target[num] for num in predict_batch[show_list[i]] if i2w_target[num] != "_PAD"])
+						print("tar:",[i2w_target[num] for num in target_batch[show_list[i]] if i2w_target[num] != "_PAD"])
 						print("")
+			### test
+			source_batch, source_lens, target_batch, target_lens, _ = get_batch(test_source, w2i_source, test_target, w2i_target, config.batch_size, 0, 'test')
+			val_feed_dict = {
+				model.seq_inputs: source_batch,
+				model.seq_inputs_length: source_lens,
+				model.seq_targets: target_batch,
+				model.seq_targets_length: target_lens
+			}
+			predict_batch = sess.run(model.out, feed_dict)
+			show_list = list(range(len(source_batch)))
+			random.shuffle(show_list)
+			for i in range(3):
+				print("in:", [i2w_source[num] for num in source_batch[show_list[i]] if i2w_source[num] != "_PAD"])
+				print("out:",[i2w_target[num] for num in predict_batch[show_list[i]] if i2w_target[num] != "_PAD"])
+				print("tar:",[i2w_target[num] for num in target_batch[show_list[i]] if i2w_target[num] != "_PAD"])
+				print("")
 			
 			print(losses)
 		print(saver.save(sess, "checkpoint/model.ckpt"))		
