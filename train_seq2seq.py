@@ -116,8 +116,7 @@ def get_batch(docs_source, w2i_source, docs_target, w2i_target, batch_size, batc
 	# 	source_batch.append(source_seq)
 	# 	target_batch.append(target_seq)
 	ps = []
-	if mode != 'train':
-    		batch_size = len(docs_source)
+
 	while len(ps) < batch_size:	
 		ps.append(batch_num)
 		batch_num = batch_num + 1
@@ -162,6 +161,8 @@ if __name__ == "__main__":
 	batches = 3000
 	print_every = 100
 	batch_num = 0
+	val_batch_num = 0
+	test_batch_num = 0
 	epoch = 20
 	with tf.Session(config=tf_config) as sess:
 		tf.summary.FileWriter('graph', sess.graph)
@@ -195,7 +196,7 @@ if __name__ == "__main__":
 					print("loss:",print_loss)
 					
 					print("samples:\n")
-					source_batch, source_lens, target_batch, target_lens, _ = get_batch(val_source, w2i_source, val_target, w2i_target, config.batch_size, 0, 'val')
+					source_batch, source_lens, target_batch, target_lens, val_batch_num = get_batch(val_source, w2i_source, val_target, w2i_target, config.batch_size, val_batch_num, 'val')
 					val_feed_dict = {
 						model.seq_inputs: source_batch,
 						model.seq_inputs_length: source_lens,
@@ -211,7 +212,8 @@ if __name__ == "__main__":
 						print("tar:",[i2w_target[num] for num in target_batch[show_list[i]] if i2w_target[num] != "_PAD"])
 						print("")
 			### test
-			source_batch, source_lens, target_batch, target_lens, _ = get_batch(test_source, w2i_source, test_target, w2i_target, config.batch_size, 0, 'test')
+			print("----------test-------------------")
+			source_batch, source_lens, target_batch, target_lens, test_batch_num = get_batch(test_source, w2i_source, test_target, w2i_target, config.batch_size, test_batch_num, 'test')
 			val_feed_dict = {
 				model.seq_inputs: source_batch,
 				model.seq_inputs_length: source_lens,
