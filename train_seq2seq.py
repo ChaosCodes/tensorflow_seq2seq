@@ -141,7 +141,7 @@ def get_batch(docs_source, w2i_source, docs_target, w2i_target, batch_size, batc
 		target_batch.append(target_seq)
 
 
-	return source_batch, source_lens, target_batch, target_lens, (batch_num + batch_size) % docs_source_len
+	return source_batch, source_lens, target_batch, target_lens, batch_num % docs_source_len
 	
 	
 if __name__ == "__main__":
