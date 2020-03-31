@@ -95,10 +95,8 @@ def get_batch(docs_source, w2i_source, docs_target, w2i_target, batch_size, batc
 	max_target_len = max(target_lens)
 		
 	for i in range(batch_size):
-		source_seq = [w2i_source[w] for w in docs_source[(batch_num + i) % source_len]] +\
-						[w2i_source["_PAD"]]*(max_source_len-len(docs_source[(batch_num + i) % source_len]))
-		target_seq = [w2i_target[w] for w in docs_target[(batch_num + i) % source_len]] + [w2i_target["_EOS"]] +\
-						[w2i_target["_PAD"]]*(max_target_len-1-len(docs_target[(batch_num + i) % source_len]))
+		source_seq = [w2i_source[w] for w in docs_source[(batch_num + i) % source_len]] + [w2i_source["_PAD"]]*(max_source_len-len(docs_source[(batch_num + i) % source_len]))
+		target_seq = [w2i_target[w] for w in docs_target[(batch_num + i) % source_len]] + [w2i_target["_EOS"]] + [w2i_target["_PAD"]]*(max_target_len-1-len(docs_target[(batch_num + i) % source_len]))
 		source_batch.append(source_seq)
 		target_batch.append(target_seq)
 	
