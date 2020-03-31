@@ -77,25 +77,11 @@ def make_vocab(docs):
 	i2w = {0:"_PAD", 1:"_GO", 2:"_EOS"}
 	for doc in docs:
 		for w in doc:
-			if w not in w2i:
-				i2w[len(w2i)] = w
-				w2i[w] = len(w2i)
+    		word = w.lower()
+			if word not in w2i:
+				i2w[len(w2i)] = word
+				w2i[word] = len(w2i)
 	return w2i, i2w
-	
-	
-def doc_to_seq(docs):
-	w2i = {"_PAD":0, "_GO":1, "_EOS":2}
-	i2w = {0:"_PAD", 1:"_GO", 2:"_EOS"}
-	seqs = []
-	for doc in docs:
-		seq = []
-		for w in doc:
-			if w not in w2i:
-				i2w[len(w2i)] = w
-				w2i[w] = len(w2i)
-			seq.append(w2i[w])
-		seqs.append(seq)
-	return seqs, w2i, i2w
 
 
 def get_batch(docs_source, w2i_source, docs_target, w2i_target, batch_size, batch_num):
@@ -130,8 +116,8 @@ def get_batch(docs_source, w2i_source, docs_target, w2i_target, batch_size, batc
 
 
 	for p in ps:
-		source_seq = [w2i_source[w] for w in docs_source[p % docs_source_len]] + [w2i_source["_PAD"]]*(max_source_len-len(docs_source[p % docs_source_len]))			
-		target_seq = [w2i_target[w] for w in docs_target[p % docs_target_len]] + [w2i_target["_EOS"]] + [w2i_target["_PAD"]]*(max_target_len-1-len(docs_target[p % docs_target_len]))
+		source_seq = [w2i_source[w.lower()] for w in docs_source[p % docs_source_len]] + [w2i_source["_PAD"]]*(max_source_len-len(docs_source[p % docs_source_len]))			
+		target_seq = [w2i_target[w.lower()] for w in docs_target[p % docs_target_len]] + [w2i_target["_EOS"]] + [w2i_target["_PAD"]]*(max_target_len-1-len(docs_target[p % docs_target_len]))
 
 		source_batch.append(source_seq)
 		target_batch.append(target_seq)
