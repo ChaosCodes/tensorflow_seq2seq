@@ -2,11 +2,15 @@ import tensorflow as tf
 import numpy as np
 import random
 import time
+import os
+
 from model_seq2seq_contrib import Seq2seq
 # from model_seq2seq import Seq2seq
 
 tf_config = tf.ConfigProto(allow_soft_placement=True)
 tf_config.gpu_options.allow_growth = True 
+dataset_file = os.path.join(os.path.abspath('.'), 'dataset', 'COVID-Dialogue.txt')
+
 
 class Config(object):
 	embedding_dim = 100
@@ -18,20 +22,37 @@ class Config(object):
 
 
 def load_data(path):
-	num2en = {"1":"one", "2":"two", "3":"three", "4":"four", "5":"five", "6":"six", "7":"seven", "8":"eight", "9":"nine", "0":"zero"}
+	# num2en = {"1":"one", "2":"two", "3":"three", "4":"four", "5":"five", "6":"six", "7":"seven", "8":"eight", "9":"nine", "0":"zero"}
 	docs_source = []
 	docs_target = []
-	for i in range(10000):
-		doc_len = random.randint(1,8)
-		doc_source = []
-		doc_target = []
-		for j in range(doc_len):
-			num = str(random.randint(0,9))
-			doc_source.append(num)
-			doc_target.append(num2en[num])
-		docs_source.append(doc_source)
-		docs_target.append(doc_target)
-	
+	# for i in range(10000):
+	# 	doc_len = random.randint(1,8)
+	# 	doc_source = []
+	# 	doc_target = []
+	# 	for j in range(doc_len):
+	# 		num = str(random.randint(0,9))
+	# 		doc_source.append(num)
+	# 		doc_target.append(num2en[num])
+	# 	docs_source.append(doc_source)
+	# 	docs_target.append(doc_target)
+	pair = []
+	with open(path, 'r') as f:
+		current_sentence = ''
+		last_sentence = ''
+		while True:
+			line = f.readline()
+			if not line:
+				break
+			if line[:3] == 'id=':
+				current_sentence = ''
+				last_sentence = ''
+			else:
+				current_sentence = line[2:]
+				if last_sentence != '':
+    				
+					docs_source.append(last_sentence.split())
+					docs_target.append(current_sentence.split())
+				last_sentence = current_sentence
 	return docs_source, docs_target
 
 	
@@ -87,7 +108,7 @@ def get_batch(docs_source, w2i_source, docs_target, w2i_target, batch_size):
 if __name__ == "__main__":
 
 	print("(1)load data......")
-	docs_source, docs_target = load_data("")
+	docs_source, docs_target = load_data(dataset_file)
 	w2i_source, i2w_source = make_vocab(docs_source)
 	w2i_target, i2w_target = make_vocab(docs_target)
 	
