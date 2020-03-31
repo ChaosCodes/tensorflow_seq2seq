@@ -98,7 +98,7 @@ def doc_to_seq(docs):
 	return seqs, w2i, i2w
 
 
-def get_batch(docs_source, w2i_source, docs_target, w2i_target, batch_size, batch_num, mode='train'):
+def get_batch(docs_source, w2i_source, docs_target, w2i_target, batch_size, batch_num):
 	# source_len = len(docs_source)
 
 	# source_batch = []
@@ -115,11 +115,7 @@ def get_batch(docs_source, w2i_source, docs_target, w2i_target, batch_size, batc
 	# 	target_seq = [w2i_target[w] for w in docs_target[(batch_num + i) % source_len]] + [w2i_target["_EOS"]] + [w2i_target["_PAD"]]*(max_target_len-1-len(docs_target[(batch_num + i) % source_len]))
 	# 	source_batch.append(source_seq)
 	# 	target_batch.append(target_seq)
-	ps = []
-
-	while len(ps) < batch_size:	
-		ps.append(batch_num)
-		batch_num = batch_num + 1
+	ps = list(range(batch_num, batch_num + batch_size))
 
 	source_batch = []
 	target_batch = []
@@ -141,7 +137,7 @@ def get_batch(docs_source, w2i_source, docs_target, w2i_target, batch_size, batc
 		target_batch.append(target_seq)
 
 
-	return source_batch, source_lens, target_batch, target_lens, batch_num % docs_source_len
+	return source_batch, source_lens, target_batch, target_lens, (batch_num + batch_size) % docs_source_len
 	
 	
 if __name__ == "__main__":
@@ -164,7 +160,7 @@ if __name__ == "__main__":
 	batch_num = 0
 	val_batch_num = 0
 	test_batch_num = 0
-	epoch = 20
+	epoch = 100
 	with tf.Session(config=tf_config) as sess:
 		tf.summary.FileWriter('graph', sess.graph)
 		saver = tf.train.Saver()
@@ -174,7 +170,7 @@ if __name__ == "__main__":
 		total_loss = 0
 		for _ in range(epoch):
 			for batch in range(batches):
-				source_batch, source_lens, target_batch, target_lens, batch_num = get_batch(train_source, w2i_source, train_target, w2i_target, config.batch_size, batch_num, 'train')
+				source_batch, source_lens, target_batch, target_lens, batch_num = get_batch(train_source, w2i_source, train_target, w2i_target, config.batch_size, batch_num)
 				
 				feed_dict = {
 					model.seq_inputs: source_batch,
@@ -197,7 +193,7 @@ if __name__ == "__main__":
 					print("loss:",print_loss)
 					
 					print("samples:\n")
-					source_batch, source_lens, target_batch, target_lens, val_batch_num = get_batch(val_source, w2i_source, val_target, w2i_target, config.batch_size, val_batch_num, 'val')
+					source_batch, source_lens, target_batch, target_lens, val_batch_num = get_batch(val_source, w2i_source, val_target, w2i_target, config.batch_size, val_batch_num)
 					val_feed_dict = {
 						model.seq_inputs: source_batch,
 						model.seq_inputs_length: source_lens,
@@ -214,7 +210,7 @@ if __name__ == "__main__":
 						print("")
 			### test
 			print("----------test-------------------")
-			source_batch, source_lens, target_batch, target_lens, test_batch_num = get_batch(test_source, w2i_source, test_target, w2i_target, config.batch_size, test_batch_num, 'test')
+			source_batch, source_lens, target_batch, target_lens, test_batch_num = get_batch(test_source, w2i_source, test_target, w2i_target, config.batch_size, test_batch_num)
 			val_feed_dict = {
 				model.seq_inputs: source_batch,
 				model.seq_inputs_length: source_lens,
@@ -231,7 +227,7 @@ if __name__ == "__main__":
 				print("")
 			
 			print(losses)
-		print(saver.save(sess, "checkpoint/model.ckpt"))		
+			print(saver.save(sess, "checkpoint/model.ckpt"))		
 		
 	
 
