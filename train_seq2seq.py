@@ -83,23 +83,46 @@ def doc_to_seq(docs):
 
 
 def get_batch(docs_source, w2i_source, docs_target, w2i_target, batch_size, batch_num):
-	source_len = len(docs_source)
+	# source_len = len(docs_source)
+
+	# source_batch = []
+	# target_batch = []
+	
+	# source_lens = [len(docs_source[(batch_num + i) % source_len]) for i in range(batch_size)]
+	# target_lens = [len(docs_target[(batch_num + i) % source_len]) for i in range(batch_size)]
+	
+	# max_source_len = max(source_lens)
+	# max_target_len = max(target_lens)
+		
+	# for i in range(batch_size):
+	# 	source_seq = [w2i_source[w] for w in docs_source[(batch_num + i) % source_len]] + [w2i_source["_PAD"]]*(max_source_len-len(docs_source[(batch_num + i) % source_len]))
+	# 	target_seq = [w2i_target[w] for w in docs_target[(batch_num + i) % source_len]] + [w2i_target["_EOS"]] + [w2i_target["_PAD"]]*(max_target_len-1-len(docs_target[(batch_num + i) % source_len]))
+	# 	source_batch.append(source_seq)
+	# 	target_batch.append(target_seq)
+	ps = []
+	while len(ps) < batch_size:	
+		ps.append(batch_num)
+		batch_num = batch_num + 1
 
 	source_batch = []
 	target_batch = []
-	
-	source_lens = [len(docs_source[(batch_num + i) % source_len]) for i in range(batch_size)]
-	target_lens = [len(docs_target[(batch_num + i) % source_len]) for i in range(batch_size)]
-	
+
+
+	source_lens = [len(docs_source[p]) for p in ps]
+	target_lens = [len(docs_target[p])+1 for p in ps]
+
 	max_source_len = max(source_lens)
 	max_target_len = max(target_lens)
-		
-	for i in range(batch_size):
-		source_seq = [w2i_source[w] for w in docs_source[(batch_num + i) % source_len]] + [w2i_source["_PAD"]]*(max_source_len-len(docs_source[(batch_num + i) % source_len]))
-		target_seq = [w2i_target[w] for w in docs_target[(batch_num + i) % source_len]] + [w2i_target["_EOS"]] + [w2i_target["_PAD"]]*(max_target_len-1-len(docs_target[(batch_num + i) % source_len]))
+
+
+	for p in ps:
+		source_seq = [w2i_source[w] for w in docs_source[p]] + [w2i_source["_PAD"]]*(max_source_len-len(docs_source[p]))			
+		target_seq = [w2i_target[w] for w in docs_target[p]] + [w2i_target["_EOS"]] + [w2i_target["_PAD"]]*(max_target_len-1-len(docs_target[p]))
+
 		source_batch.append(source_seq)
 		target_batch.append(target_seq)
-	
+
+
 	return source_batch, source_lens, target_batch, target_lens, (batch_num + batch_size) % batch_size
 	
 	
