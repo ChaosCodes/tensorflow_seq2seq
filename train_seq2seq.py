@@ -19,7 +19,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = '1'
 class Config(object):
 	embedding_dim = 100
 	hidden_dim = 300
-	batch_size = 64
+	batch_size = 48
 	learning_rate = 0.0005
 	source_vocab_size = None
 	target_vocab_size = None
@@ -118,12 +118,12 @@ if __name__ == "__main__":
 	
 	
 	print("(3) run model......")
-	batches = 3000
+	batches = 600
 	print_every = 100
 	batch_num = 0
 	val_batch_num = 0
 	test_batch_num = 0
-	epoch = 200
+	epoch = 1000
 
 	load = True
 	with tf.Session(config=tf_config) as sess:
@@ -147,7 +147,10 @@ if __name__ == "__main__":
 		
 		losses = []
 		tight_losses = []
+		val_losses = []
+		test_losses = []
 		total_loss = 0
+		
 		for e in range(epoch):
 			for batch in range(batches):
 				source_batch, source_lens, target_batch, target_lens, batch_num = get_batch(train_source, w2i_source, train_target, w2i_target, config.batch_size, batch_num)
@@ -182,6 +185,7 @@ if __name__ == "__main__":
 						model.seq_targets_length: target_lens
 					}
 					predict_batch, val_loss = sess.run([model.out, model.loss], val_feed_dict)
+					val_losses.append(val_loss)
 					print("loss:", val_loss)
 
 					for i in range(3):
@@ -189,10 +193,7 @@ if __name__ == "__main__":
 						print("out:",[i2w_target[num] for num in predict_batch[i] if i2w_target[num] != "_PAD"])
 						print("tar:",[i2w_target[num] for num in target_batch[i] if i2w_target[num] != "_PAD"])
 						print("")
-			## save
-			print(f"save loss")
-			np.save('tight_losses',tight_losses)
-			np.save('loss', losses)
+
 			### test
 			print(f"-------epoch {e}-----test--------------")
 			source_batch, source_lens, target_batch, target_lens, test_batch_num = get_batch(test_source, w2i_source, test_target, w2i_target, config.batch_size, test_batch_num)
@@ -203,6 +204,7 @@ if __name__ == "__main__":
 				model.seq_targets_length: target_lens
 			}
 			predict_batch, test_loss = sess.run([model.out, model.loss], test_feed_dict)
+			test_losses.append(test_loss)
 			print("loss:", test_loss)
 
 			for i in range(3):
@@ -211,4 +213,10 @@ if __name__ == "__main__":
 				print("tar:",[i2w_target[num] for num in target_batch[i] if i2w_target[num] != "_PAD"])
 				print("")
 
+			## save
 			saver.save(sess, os.path.join(os.path.abspath('.'), 'save_model', store_dir))
+			print(f"save loss")
+			np.save('tight_losses',tight_losses)
+			np.save('loss', losses)
+			np.save('val_loss',val_losses)
+			np.save('test_loss', test_losses)
