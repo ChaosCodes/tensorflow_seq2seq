@@ -131,7 +131,7 @@ if __name__ == "__main__":
 		sess.run(tf.global_variables_initializer())
 		if load:
 			print('load the model')
-			ckpt = tf.train.get_checkpoint_state('save_model/'))
+			ckpt = tf.train.get_checkpoint_state('save_model/')
 			if ckpt and ckpt.model_checkpoint_path:
 				saver.restore(sess, ckpt.model_checkpoint_path)
 				print('load the pretrained model parameters')
