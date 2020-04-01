@@ -128,10 +128,17 @@ if __name__ == "__main__":
 	with tf.Session(config=tf_config) as sess:
 		# tf.summary.FileWriter('graph', sess.graph)
 		saver = tf.train.Saver()
+		sess.run(tf.global_variables_initializer())
 		if load:
 			print('load the model')
-			saver.restore(sess, os.path.join(os.path.abspath('.'), 'save_model', 'seq2seq'))
-		sess.run(tf.global_variables_initializer())
+			ckpt = tf.train.get_checkpoint_state(os.path.dirname(os.path.abspath('.') + '/save_model'))
+			if ckpt and ckpt.model_checkpoint_path:
+				saver.restore(sess, ckpt.model_checkpoint_path)
+				print('load the pretrained model parameters')
+			else:
+    			sess.run(tf.global_variables_initializer())
+		else:
+			sess.run(tf.global_variables_initializer())
 		
 		losses = []
 		total_loss = 0
