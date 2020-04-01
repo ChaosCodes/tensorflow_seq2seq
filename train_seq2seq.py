@@ -131,13 +131,15 @@ if __name__ == "__main__":
 		sess.run(tf.global_variables_initializer())
 		if load:
 			print('load the model')
-			ckpt = tf.train.get_checkpoint_state(os.path.dirname(os.path.abspath('.') + '/save_model'))
+			ckpt = tf.train.get_checkpoint_state('save_model/'))
 			if ckpt and ckpt.model_checkpoint_path:
 				saver.restore(sess, ckpt.model_checkpoint_path)
 				print('load the pretrained model parameters')
 			else:
+				print('not loading')
 				sess.run(tf.global_variables_initializer())
 		else:
+			print('not loading')
 			sess.run(tf.global_variables_initializer())
 		
 		losses = []
