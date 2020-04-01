@@ -179,7 +179,7 @@ if __name__ == "__main__":
 						model.seq_targets: target_batch,
 						model.seq_targets_length: target_lens
 					}
-					predict_batch, val_loss = sess.run([model.out, model.loss], feed_dict)
+					predict_batch, val_loss = sess.run([model.out, model.loss], val_feed_dict)
 					print("loss:", val_loss)
 
 					for i in range(3):
@@ -190,13 +190,13 @@ if __name__ == "__main__":
 			### test
 			print(f"-------epoch {e}-----test--------------")
 			source_batch, source_lens, target_batch, target_lens, test_batch_num = get_batch(test_source, w2i_source, test_target, w2i_target, config.batch_size, test_batch_num)
-			val_feed_dict = {
+			test_feed_dict = {
 				model.seq_inputs: source_batch,
 				model.seq_inputs_length: source_lens,
 				model.seq_targets: target_batch,
 				model.seq_targets_length: target_lens
 			}
-			predict_batch, test_loss = sess.run([model.out, model.loss], feed_dict)
+			predict_batch, test_loss = sess.run([model.out, model.loss], test_feed_dict)
 			print("loss:", test_loss)
 
 			for i in range(3):
