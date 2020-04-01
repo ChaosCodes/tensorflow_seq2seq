@@ -19,7 +19,7 @@ class Config(object):
 	embedding_dim = 100
 	hidden_dim = 400
 	batch_size = 32
-	learning_rate = 0.005
+	learning_rate = 0.0005
 	source_vocab_size = None
 	target_vocab_size = None
 
@@ -124,7 +124,7 @@ if __name__ == "__main__":
 	test_batch_num = 0
 	epoch = 200
 
-	load = False
+	load = True
 	with tf.Session(config=tf_config) as sess:
 		# tf.summary.FileWriter('graph', sess.graph)
 		saver = tf.train.Saver()
@@ -169,12 +169,11 @@ if __name__ == "__main__":
 					}
 					predict_batch, val_loss = sess.run([model.out, model.loss], feed_dict)
 					print("loss:", val_loss)
-					show_list = list(range(len(source_batch)))
-					random.shuffle(show_list)
+
 					for i in range(3):
-						print("in:", [i2w_source[num] for num in source_batch[show_list[i]] if i2w_source[num] != "_PAD"])
-						print("out:",[i2w_target[num] for num in predict_batch[show_list[i]] if i2w_target[num] != "_PAD"])
-						print("tar:",[i2w_target[num] for num in target_batch[show_list[i]] if i2w_target[num] != "_PAD"])
+						print("in:", [i2w_source[num] for num in source_batch[i] if i2w_source[num] != "_PAD"])
+						print("out:",[i2w_target[num] for num in predict_batch[i] if i2w_target[num] != "_PAD"])
+						print("tar:",[i2w_target[num] for num in target_batch[i] if i2w_target[num] != "_PAD"])
 						print("")
 			### test
 			print(f"-------epoch {e}-----test--------------")
@@ -187,13 +186,11 @@ if __name__ == "__main__":
 			}
 			predict_batch, test_loss = sess.run([model.out, model.loss], feed_dict)
 			print("loss:", test_loss)
-			show_list = list(range(len(source_batch)))
-			random.shuffle(show_list)
+
 			for i in range(3):
-				print("in:", [i2w_source[num] for num in source_batch[show_list[i]] if i2w_source[num] != "_PAD"])
-				print("out:",[i2w_target[num] for num in predict_batch[show_list[i]] if i2w_target[num] != "_PAD"])
-				print("tar:",[i2w_target[num] for num in target_batch[show_list[i]] if i2w_target[num] != "_PAD"])
+				print("in:", [i2w_source[num] for num in source_batch[i] if i2w_source[num] != "_PAD"])
+				print("out:",[i2w_target[num] for num in predict_batch[i] if i2w_target[num] != "_PAD"])
+				print("tar:",[i2w_target[num] for num in target_batch[i] if i2w_target[num] != "_PAD"])
 				print("")
-			
-			print(losses)
+
 			saver.save(sess, os.path.join(os.path.abspath('.'), 'save_model', 'seq2seq'))
