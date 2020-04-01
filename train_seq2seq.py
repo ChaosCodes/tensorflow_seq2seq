@@ -17,7 +17,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = '1'
 
 class Config(object):
 	embedding_dim = 100
-	hidden_dim = 480
+	hidden_dim = 450
 	batch_size = 32
 	learning_rate = 0.005
 	source_vocab_size = None
@@ -126,7 +126,7 @@ if __name__ == "__main__":
 
 	load = False
 	with tf.Session(config=tf_config) as sess:
-		tf.summary.FileWriter('graph', sess.graph)
+		# tf.summary.FileWriter('graph', sess.graph)
 		saver = tf.train.Saver()
 		if load:
 			print('load the model')
