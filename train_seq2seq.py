@@ -130,7 +130,7 @@ if __name__ == "__main__":
 		# tf.summary.FileWriter('graph', sess.graph)
 		saver = tf.train.Saver()
 		sess.run(tf.global_variables_initializer())
-		store_dir = make_store_path()
+		store_dir = make_store_path(config)
 		ensure_dir(store_dir)
 		if load:
 			print('load the model')
