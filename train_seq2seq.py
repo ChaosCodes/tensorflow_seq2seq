@@ -48,7 +48,7 @@ def load_data(path):
 				last_sentence = current_sentence
 		idx = list(range(len(docs_source)))
 		random.shuffle(idx)
-		train_idx = idx[:int(len(idx) * 0.8)]
+		train_idx = idx[:int(len(idx) * 0.9)]
 		val_idx = idx[int(len(idx) * 0.8): int(len(idx) * 0.9)]
 		test_idx = idx[int(len(idx) * 0.9):]
 
