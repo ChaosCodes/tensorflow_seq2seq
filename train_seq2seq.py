@@ -17,7 +17,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = '1'
 
 class Config(object):
 	embedding_dim = 100
-	hidden_dim = 512
+	hidden_dim = 480
 	batch_size = 32
 	learning_rate = 0.005
 	source_vocab_size = None
@@ -117,12 +117,12 @@ if __name__ == "__main__":
 	
 	
 	print("(3) run model......")
-	batches = 30
-	print_every = 30
+	batches = 3000
+	print_every = 100
 	batch_num = 0
 	val_batch_num = 0
 	test_batch_num = 0
-	epoch = 2
+	epoch = 200
 
 	load = True
 	with tf.Session(config=tf_config) as sess:
