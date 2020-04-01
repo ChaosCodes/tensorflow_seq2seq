@@ -11,6 +11,9 @@ tf_config = tf.ConfigProto(allow_soft_placement=True)
 tf_config.gpu_options.allow_growth = True 
 dataset_file = os.path.join(os.path.abspath('.'), 'dataset', 'COVID-Dialogue.txt')
 
+# set the gpu_id
+os.environ["CUDA_VISIBLE_DEVICES"] = '1'
+
 
 class Config(object):
 	embedding_dim = 128
@@ -22,20 +25,9 @@ class Config(object):
 
 
 def load_data(path):
-	# num2en = {"1":"one", "2":"two", "3":"three", "4":"four", "5":"five", "6":"six", "7":"seven", "8":"eight", "9":"nine", "0":"zero"}
 	docs_source = []
 	docs_target = []
-	# for i in range(10000):
-	# 	doc_len = random.randint(1,8)
-	# 	doc_source = []
-	# 	doc_target = []
-	# 	for j in range(doc_len):
-	# 		num = str(random.randint(0,9))
-	# 		doc_source.append(num)
-	# 		doc_target.append(num2en[num])
-	# 	docs_source.append(doc_source)
-	# 	docs_target.append(doc_target)
-	pair = []
+
 	with open(path, 'r') as f:
 		current_sentence = ''
 		last_sentence = ''
@@ -85,22 +77,6 @@ def make_vocab(docs):
 
 
 def get_batch(docs_source, w2i_source, docs_target, w2i_target, batch_size, batch_num):
-	# source_len = len(docs_source)
-
-	# source_batch = []
-	# target_batch = []
-	
-	# source_lens = [len(docs_source[(batch_num + i) % source_len]) for i in range(batch_size)]
-	# target_lens = [len(docs_target[(batch_num + i) % source_len]) for i in range(batch_size)]
-	
-	# max_source_len = max(source_lens)
-	# max_target_len = max(target_lens)
-		
-	# for i in range(batch_size):
-	# 	source_seq = [w2i_source[w] for w in docs_source[(batch_num + i) % source_len]] + [w2i_source["_PAD"]]*(max_source_len-len(docs_source[(batch_num + i) % source_len]))
-	# 	target_seq = [w2i_target[w] for w in docs_target[(batch_num + i) % source_len]] + [w2i_target["_EOS"]] + [w2i_target["_PAD"]]*(max_target_len-1-len(docs_target[(batch_num + i) % source_len]))
-	# 	source_batch.append(source_seq)
-	# 	target_batch.append(target_seq)
 	ps = list(range(batch_num, batch_num + batch_size))
 
 	source_batch = []
@@ -154,7 +130,7 @@ if __name__ == "__main__":
 		
 		losses = []
 		total_loss = 0
-		for _ in range(epoch):
+		for e in range(epoch):
 			for batch in range(batches):
 				source_batch, source_lens, target_batch, target_lens, batch_num = get_batch(train_source, w2i_source, train_target, w2i_target, config.batch_size, batch_num)
 				
@@ -195,7 +171,7 @@ if __name__ == "__main__":
 						print("tar:",[i2w_target[num] for num in target_batch[show_list[i]] if i2w_target[num] != "_PAD"])
 						print("")
 			### test
-			print("----------test-------------------")
+			print(f"-------epoch {e}-----test--------------")
 			source_batch, source_lens, target_batch, target_lens, test_batch_num = get_batch(test_source, w2i_source, test_target, w2i_target, config.batch_size, test_batch_num)
 			val_feed_dict = {
 				model.seq_inputs: source_batch,
@@ -213,8 +189,4 @@ if __name__ == "__main__":
 				print("")
 			
 			print(losses)
-			print(saver.save(sess, "checkpoint/model.ckpt"))		
-		
-	
-
-
+			saver.save(sess, os.path.join(os.path.abspath('.'), 'save_model', 'seq2seq'))
