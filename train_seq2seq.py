@@ -122,7 +122,7 @@ if __name__ == "__main__":
 	batch_num = 0
 	val_batch_num = 0
 	test_batch_num = 0
-	epoch = 100
+	epoch = 200
 	with tf.Session(config=tf_config) as sess:
 		tf.summary.FileWriter('graph', sess.graph)
 		saver = tf.train.Saver()
