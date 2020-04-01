@@ -12,12 +12,12 @@ tf_config.gpu_options.allow_growth = True
 dataset_file = os.path.join(os.path.abspath('.'), 'dataset', 'COVID-Dialogue.txt')
 
 # set the gpu_id
-os.environ["CUDA_VISIBLE_DEVICES"] = '1'
+os.environ["CUDA_VISIBLE_DEVICES"] = '2'
 
 
 class Config(object):
 	embedding_dim = 100
-	hidden_dim = 40
+	hidden_dim = 400
 	batch_size = 32
 	learning_rate = 0.005
 	source_vocab_size = None
