@@ -13,13 +13,13 @@ tf_config.gpu_options.allow_growth = True
 dataset_file = os.path.join(os.path.abspath('.'), 'dataset', 'COVID-Dialogue.txt')
 
 # set the gpu_id
-os.environ["CUDA_VISIBLE_DEVICES"] = '1'
+os.environ["CUDA_VISIBLE_DEVICES"] = '2'
 
 
 class Config(object):
 	embedding_dim = 100
 	hidden_dim = 300
-	batch_size = 48
+	batch_size = 60
 	learning_rate = 0.0005
 	source_vocab_size = None
 	target_vocab_size = None
@@ -118,12 +118,12 @@ if __name__ == "__main__":
 	
 	
 	print("(3) run model......")
-	batches = 600
+	batches = 3000
 	print_every = 100
 	batch_num = 0
 	val_batch_num = 0
 	test_batch_num = 0
-	epoch = 1000
+	epoch = 200
 
 	load = True
 	with tf.Session(config=tf_config) as sess:
@@ -216,7 +216,7 @@ if __name__ == "__main__":
 			## save
 			saver.save(sess, os.path.join(os.path.abspath('.'), 'save_model', store_dir))
 			print(f"save loss")
-			np.save('tight_losses',tight_losses)
-			np.save('loss', losses)
-			np.save('val_loss',val_losses)
-			np.save('test_loss', test_losses)
+			np.save(f'{store_dir}tight_losses', tight_losses)
+			np.save(f'{store_dir}loss', losses)
+			np.save(f'{store_dir}val_loss',val_losses)
+			np.save(f'{store_dir}test_loss', test_losses)
