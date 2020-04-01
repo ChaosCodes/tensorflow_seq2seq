@@ -12,7 +12,7 @@ tf_config.gpu_options.allow_growth = True
 dataset_file = os.path.join(os.path.abspath('.'), 'dataset', 'COVID-Dialogue.txt')
 
 # set the gpu_id
-os.environ["CUDA_VISIBLE_DEVICES"] = '2'
+os.environ["CUDA_VISIBLE_DEVICES"] = '1'
 
 
 class Config(object):
@@ -136,7 +136,7 @@ if __name__ == "__main__":
 				saver.restore(sess, ckpt.model_checkpoint_path)
 				print('load the pretrained model parameters')
 			else:
-    			sess.run(tf.global_variables_initializer())
+				sess.run(tf.global_variables_initializer())
 		else:
 			sess.run(tf.global_variables_initializer())
 		
