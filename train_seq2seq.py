@@ -18,8 +18,8 @@ os.environ["CUDA_VISIBLE_DEVICES"] = '1'
 
 class Config(object):
 	embedding_dim = 100
-	hidden_dim = 400
-	batch_size = 32
+	hidden_dim = 300
+	batch_size = 64
 	learning_rate = 0.0005
 	source_vocab_size = None
 	target_vocab_size = None
@@ -134,7 +134,7 @@ if __name__ == "__main__":
 		ensure_dir(store_dir)
 		if load:
 			print('load the model')
-			ckpt = tf.train.get_checkpoint_state('save_model/' + make_store_path)
+			ckpt = tf.train.get_checkpoint_state('save_model/' + store_dir)
 			if ckpt and ckpt.model_checkpoint_path:
 				saver.restore(sess, ckpt.model_checkpoint_path)
 				print('load the pretrained model parameters')
