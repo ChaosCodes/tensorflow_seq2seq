@@ -16,8 +16,8 @@ os.environ["CUDA_VISIBLE_DEVICES"] = '1'
 
 
 class Config(object):
-	embedding_dim = 100
-	hidden_dim = 300
+	embedding_dim = 128
+	hidden_dim = 512
 	batch_size = 32
 	learning_rate = 0.005
 	source_vocab_size = None
