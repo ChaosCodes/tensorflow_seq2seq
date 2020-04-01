@@ -16,8 +16,8 @@ os.environ["CUDA_VISIBLE_DEVICES"] = '1'
 
 
 class Config(object):
-	embedding_dim = 128
-	hidden_dim = 512
+	embedding_dim = 100
+	hidden_dim = 500
 	batch_size = 32
 	learning_rate = 0.005
 	source_vocab_size = None
@@ -162,7 +162,8 @@ if __name__ == "__main__":
 						model.seq_targets: target_batch,
 						model.seq_targets_length: target_lens
 					}
-					predict_batch = sess.run(model.out, feed_dict)
+					predict_batch, val_loss = sess.run(model.out, model.loss, feed_dict)
+					print("loss:", val_loss)
 					show_list = list(range(len(source_batch)))
 					random.shuffle(show_list)
 					for i in range(3):
@@ -179,7 +180,8 @@ if __name__ == "__main__":
 				model.seq_targets: target_batch,
 				model.seq_targets_length: target_lens
 			}
-			predict_batch = sess.run(model.out, feed_dict)
+			predict_batch, test_loss = sess.run(model.out, model.loss, feed_dict)
+			print("loss:", test_loss)
 			show_list = list(range(len(source_batch)))
 			random.shuffle(show_list)
 			for i in range(3):
