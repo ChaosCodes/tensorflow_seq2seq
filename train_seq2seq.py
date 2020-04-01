@@ -124,7 +124,7 @@ if __name__ == "__main__":
 	test_batch_num = 0
 	epoch = 200
 
-	load = True
+	load = False
 	with tf.Session(config=tf_config) as sess:
 		tf.summary.FileWriter('graph', sess.graph)
 		saver = tf.train.Saver()
