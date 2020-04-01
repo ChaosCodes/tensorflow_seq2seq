@@ -17,7 +17,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = '1'
 
 class Config(object):
 	embedding_dim = 100
-	hidden_dim = 400
+	hidden_dim = 512
 	batch_size = 32
 	learning_rate = 0.005
 	source_vocab_size = None
@@ -117,15 +117,20 @@ if __name__ == "__main__":
 	
 	
 	print("(3) run model......")
-	batches = 3000
-	print_every = 100
+	batches = 30
+	print_every = 30
 	batch_num = 0
 	val_batch_num = 0
 	test_batch_num = 0
-	epoch = 200
+	epoch = 2
+
+	load = True
 	with tf.Session(config=tf_config) as sess:
 		tf.summary.FileWriter('graph', sess.graph)
 		saver = tf.train.Saver()
+		if load:
+			print('load the model')
+			saver.restore(sess, os.path.join(os.path.abspath('.'), 'save_model', 'seq2seq'))
 		sess.run(tf.global_variables_initializer())
 		
 		losses = []
@@ -162,7 +167,7 @@ if __name__ == "__main__":
 						model.seq_targets: target_batch,
 						model.seq_targets_length: target_lens
 					}
-					predict_batch, val_loss = sess.run(model.out, model.loss, feed_dict)
+					predict_batch, val_loss = sess.run([model.out, model.loss], feed_dict)
 					print("loss:", val_loss)
 					show_list = list(range(len(source_batch)))
 					random.shuffle(show_list)
@@ -180,7 +185,7 @@ if __name__ == "__main__":
 				model.seq_targets: target_batch,
 				model.seq_targets_length: target_lens
 			}
-			predict_batch, test_loss = sess.run(model.out, model.loss, feed_dict)
+			predict_batch, test_loss = sess.run([model.out, model.loss], feed_dict)
 			print("loss:", test_loss)
 			show_list = list(range(len(source_batch)))
 			random.shuffle(show_list)
