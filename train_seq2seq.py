@@ -5,6 +5,7 @@ import time
 import os
 
 from model_seq2seq_contrib import Seq2seq
+from utils import ensure_dir, make_store_path
 # from model_seq2seq import Seq2seq
 
 tf_config = tf.ConfigProto(allow_soft_placement=True)
@@ -129,9 +130,11 @@ if __name__ == "__main__":
 		# tf.summary.FileWriter('graph', sess.graph)
 		saver = tf.train.Saver()
 		sess.run(tf.global_variables_initializer())
+		store_dir = make_store_path()
+		ensure_dir(store_dir)
 		if load:
 			print('load the model')
-			ckpt = tf.train.get_checkpoint_state('save_model/')
+			ckpt = tf.train.get_checkpoint_state('save_model/' + make_store_path)
 			if ckpt and ckpt.model_checkpoint_path:
 				saver.restore(sess, ckpt.model_checkpoint_path)
 				print('load the pretrained model parameters')
@@ -202,4 +205,4 @@ if __name__ == "__main__":
 				print("tar:",[i2w_target[num] for num in target_batch[i] if i2w_target[num] != "_PAD"])
 				print("")
 
-			saver.save(sess, os.path.join(os.path.abspath('.'), 'save_model', 'seq2seq'))
+			saver.save(sess, os.path.join(os.path.abspath('.'), 'save_model', store_dir))
