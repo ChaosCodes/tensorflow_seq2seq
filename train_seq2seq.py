@@ -146,6 +146,7 @@ if __name__ == "__main__":
 			sess.run(tf.global_variables_initializer())
 		
 		losses = []
+		tight_losses = []
 		total_loss = 0
 		for e in range(epoch):
 			for batch in range(batches):
@@ -160,7 +161,8 @@ if __name__ == "__main__":
 				
 				loss, _ = sess.run([model.loss, model.train_op], feed_dict)
 				total_loss += loss
-				
+				if batch % 10 == 0:
+					tight_losses.append(loss)
 				if batch % print_every == 0 and batch > 0:
 
 					print_loss = total_loss if batch == 0 else total_loss / print_every
@@ -187,6 +189,10 @@ if __name__ == "__main__":
 						print("out:",[i2w_target[num] for num in predict_batch[i] if i2w_target[num] != "_PAD"])
 						print("tar:",[i2w_target[num] for num in target_batch[i] if i2w_target[num] != "_PAD"])
 						print("")
+			## save
+			print(f"save loss")
+			np.save('tight_losses',tight_losses)
+			np.save('loss', losses)
 			### test
 			print(f"-------epoch {e}-----test--------------")
 			source_batch, source_lens, target_batch, target_lens, test_batch_num = get_batch(test_source, w2i_source, test_target, w2i_target, config.batch_size, test_batch_num)
