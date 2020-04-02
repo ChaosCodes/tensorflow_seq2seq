@@ -17,7 +17,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = '5'
 
 
 class Config(object):
-	embedding_dim = 100
+	embedding_dim = 64
 	hidden_dim = 200
 	batch_size = 45
 	learning_rate = 0.001
@@ -185,7 +185,7 @@ if __name__ == "__main__":
 						model.seq_targets: target_batch,
 						model.seq_targets_length: target_lens
 					}
-					predict_batch, val_loss = sess.run([model.out, model.loss], val_feed_dict)
+					predict_batch, val_loss = sess.run([test_model.out, test_model.loss], val_feed_dict)
 					val_losses.append(val_loss)
 					print("loss:", val_loss)
 
