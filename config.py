@@ -6,3 +6,4 @@ def load_arguments():
 	argparser.add_argument('--gpu_id',
 							type=int,
 							default=0)
+	return argparser.parse_args()
