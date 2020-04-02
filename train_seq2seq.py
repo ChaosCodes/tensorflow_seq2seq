@@ -157,7 +157,6 @@ if __name__ == "__main__":
 				source_batch, source_lens, target_batch, target_lens, batch_num = get_batch(train_source, w2i_source, train_target, w2i_target, config.batch_size, batch_num)
 				
 				feed_dict = {
-					model.dropout: 0.5,
 					model.seq_inputs: source_batch,
 					model.seq_inputs_length: source_lens,
 					model.seq_targets: target_batch,
@@ -181,7 +180,6 @@ if __name__ == "__main__":
 					print("samples:\n")
 					source_batch, source_lens, target_batch, target_lens, val_batch_num = get_batch(val_source, w2i_source, val_target, w2i_target, config.batch_size, val_batch_num)
 					val_feed_dict = {
-						model.dropout: 0.5,
 						model.seq_inputs: source_batch,
 						model.seq_inputs_length: source_lens,
 						model.seq_targets: target_batch,
@@ -201,7 +199,6 @@ if __name__ == "__main__":
 			print(f"-------epoch {e}-----test--------------")
 			source_batch, source_lens, target_batch, target_lens, test_batch_num = get_batch(test_source, w2i_source, test_target, w2i_target, config.batch_size, test_batch_num)
 			test_feed_dict = {
-				test_model.dropout: 1,
 				test_model.seq_inputs: source_batch,
 				test_model.seq_inputs_length: source_lens,
 				test_model.seq_targets: target_batch,
