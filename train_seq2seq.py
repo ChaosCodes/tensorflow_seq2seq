@@ -157,6 +157,7 @@ if __name__ == "__main__":
 				source_batch, source_lens, target_batch, target_lens, batch_num = get_batch(train_source, w2i_source, train_target, w2i_target, config.batch_size, batch_num)
 				
 				feed_dict = {
+					model.dropout: 0.5
 					model.seq_inputs: source_batch,
 					model.seq_inputs_length: source_lens,
 					model.seq_targets: target_batch,
@@ -180,6 +181,7 @@ if __name__ == "__main__":
 					print("samples:\n")
 					source_batch, source_lens, target_batch, target_lens, val_batch_num = get_batch(val_source, w2i_source, val_target, w2i_target, config.batch_size, val_batch_num)
 					val_feed_dict = {
+						model.dropout: 0.5,
 						model.seq_inputs: source_batch,
 						model.seq_inputs_length: source_lens,
 						model.seq_targets: target_batch,
@@ -199,10 +201,11 @@ if __name__ == "__main__":
 			print(f"-------epoch {e}-----test--------------")
 			source_batch, source_lens, target_batch, target_lens, test_batch_num = get_batch(test_source, w2i_source, test_target, w2i_target, config.batch_size, test_batch_num)
 			test_feed_dict = {
-				model.seq_inputs: source_batch,
-				model.seq_inputs_length: source_lens,
-				model.seq_targets: target_batch,
-				model.seq_targets_length: target_lens
+				test_model.dropout: 1,
+				test_model.seq_inputs: source_batch,
+				test_model.seq_inputs_length: source_lens,
+				test_model.seq_targets: target_batch,
+				test_model.seq_targets_length: target_lens
 			}
 			predict_batch, test_loss = sess.run([test_model.out], test_feed_dict)
 			test_losses.append(test_loss)
@@ -215,7 +218,7 @@ if __name__ == "__main__":
 				print("")
 
 			## save
-			print('save in '+store_path)
+			print('save in '+ store_path)
 			saver.save(sess, os.path.join(store_path, 'seq2seq') )
 			print(f"save loss")
 			np.save(f'{store_dir}tight_losses', tight_losses)
