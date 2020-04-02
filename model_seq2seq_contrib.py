@@ -36,12 +36,11 @@ class Seq2seq(object):
 			
 			decoder_embedding = tf.get_variable('decoder_embedding', initializer=self.word_init, dtype=tf.float32, regularizer=l2_reg)
 			tokens_go = tf.ones([config.batch_size], dtype=tf.int32, name='tokens_GO') * w2i_target["_GO"]
-			
-			if useTeacherForcing:
-				decoder_inputs = tf.concat([tf.reshape(tokens_go,[-1,1]), self.seq_targets[:,:-1]], 1)
-				helper = tf.contrib.seq2seq.TrainingHelper(tf.nn.embedding_lookup(decoder_embedding, decoder_inputs), self.seq_targets_length)
-			else:
-				helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(decoder_embedding, tokens_go, w2i_target["_EOS"])
+
+			decoder_inputs = tf.concat([tf.reshape(tokens_go,[-1,1]), self.seq_targets[:,:-1]], 1)
+			train_helper = tf.contrib.seq2seq.TrainingHelper(tf.nn.embedding_lookup(decoder_embedding, decoder_inputs), self.seq_targets_length)
+
+			predict_helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(decoder_embedding, tokens_go, w2i_target["_EOS"])
 
 			with tf.variable_scope("gru_cell"):
 				decoder_cell = tf.contrib.rnn.DropoutWrapper(tf.nn.rnn_cell.GRUCell(config.hidden_dim), input_keep_prob=0.5)
@@ -69,19 +68,25 @@ class Seq2seq(object):
 						decoder_initial_state = encoder_state
 			
 			if useBeamSearch > 1:
-				decoder = tf.contrib.seq2seq.BeamSearchDecoder(decoder_cell, decoder_embedding, tokens_go, w2i_target["_EOS"],  decoder_initial_state, beam_width=useBeamSearch, output_layer=tf.layers.Dense(config.target_vocab_size))
+				train_decoder = tf.contrib.seq2seq.BeamSearchDecoder(decoder_cell, decoder_embedding, tokens_go, w2i_target["_EOS"],  decoder_initial_state, beam_width=useBeamSearch, output_layer=tf.layers.Dense(config.target_vocab_size))
 			else:
-				decoder = tf.contrib.seq2seq.BasicDecoder(decoder_cell, helper, decoder_initial_state, output_layer=tf.layers.Dense(config.target_vocab_size))
+				train_decoder = tf.contrib.seq2seq.BasicDecoder(decoder_cell, train_helper, decoder_initial_state, output_layer=tf.layers.Dense(config.target_vocab_size))
+
+				predict_decoder = tf.contrib.seq2seq.BasicDecoder(decoder_cell, predict_helper, decoder_initial_state, output_layer=tf.layers.Dense(config.target_vocab_size))
+				predict_decoder_outputs, _, _ = tf.contrib.seq2seq.dynamic_decode(predict_decoder, maximum_iterations=tf.reduce_max(self.seq_targets_length))
 			
-			decoder_outputs, decoder_state, final_sequence_lengths = tf.contrib.seq2seq.dynamic_decode(decoder, maximum_iterations=tf.reduce_max(self.seq_targets_length))
-			
+			train_decoder_outputs, _, _ = tf.contrib.seq2seq.dynamic_decode(train_decoder, maximum_iterations=tf.reduce_max(self.seq_targets_length))
+
 		if useBeamSearch > 1:
-			self.out = decoder_outputs.predicted_ids[:,:,0]
+			self.out = train_decoder_outputs.predicted_ids[:,:,0]
 		else:	
-			decoder_logits = decoder_outputs.rnn_output
+			decoder_logits = train_decoder_outputs.rnn_output
 			self.out = tf.argmax(decoder_logits, 2)
 			
 			sequence_mask = tf.sequence_mask(self.seq_targets_length, dtype=tf.float32)
 			self.loss = tf.contrib.seq2seq.sequence_loss(logits=decoder_logits, targets=self.seq_targets, weights=sequence_mask)
 			
 			self.train_op = tf.train.AdamOptimizer(learning_rate=config.learning_rate).minimize(self.loss)
+
+			predict_decoder_logits = predict_decoder_outputs.rnn_output
+			self.predict_out = tf.argmax(predict_decoder_logits, 2)

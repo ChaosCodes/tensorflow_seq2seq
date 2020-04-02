@@ -115,15 +115,14 @@ if __name__ == "__main__":
 	config.source_vocab_size = len(w2i_source)
 	config.target_vocab_size = len(w2i_target)
 	model = Seq2seq(config=config, w2i_target=w2i_target, useTeacherForcing=True, useAttention=True, useBeamSearch=1)
-	test_model = Seq2seq(config=config, w2i_target=w2i_target, useTeacherForcing=True, useAttention=True, useBeamSearch=3)
-	
+
 	print("(3) run model......")
-	batches = 3000
+	batches = 1000
 	print_every = 100
 	batch_num = 0
 	val_batch_num = 0
 	test_batch_num = 0
-	epoch = 200
+	epoch = 600
 
 	load = True
 	with tf.Session(config=tf_config) as sess:
@@ -185,13 +184,14 @@ if __name__ == "__main__":
 						model.seq_targets: target_batch,
 						model.seq_targets_length: target_lens
 					}
-					predict_batch, val_loss = sess.run([model.out, model.loss], val_feed_dict)
+					output_batch, predict_batch, val_loss = sess.run([model.out, model.predict_out, model.loss], val_feed_dict)
 					val_losses.append(val_loss)
 					print("loss:", val_loss)
 
 					for i in range(3):
 						print("in:", [i2w_source[num] for num in source_batch[i] if i2w_source[num] != "_PAD"])
-						print("out:",[i2w_target[num] for num in predict_batch[i] if i2w_target[num] != "_PAD"])
+						print("out:",[i2w_target[num] for num in output_batch[i] if i2w_target[num] != "_PAD"])
+						print("predict:",[i2w_target[num] for num in predict_batch[i] if i2w_target[num] != "_PAD"])
 						print("tar:",[i2w_target[num] for num in target_batch[i] if i2w_target[num] != "_PAD"])
 						print("")
 
@@ -199,12 +199,12 @@ if __name__ == "__main__":
 			print(f"-------epoch {e}-----test--------------")
 			source_batch, source_lens, target_batch, target_lens, test_batch_num = get_batch(test_source, w2i_source, test_target, w2i_target, config.batch_size, test_batch_num)
 			test_feed_dict = {
-				test_model.seq_inputs: source_batch,
-				test_model.seq_inputs_length: source_lens,
-				test_model.seq_targets: target_batch,
-				test_model.seq_targets_length: target_lens
+				model.seq_inputs: source_batch,
+				model.seq_inputs_length: source_lens,
+				model.seq_targets: target_batch,
+				model.seq_targets_length: target_lens
 			}
-			predict_batch, test_loss = sess.run([test_model.out], test_feed_dict)
+			predict_batch, test_loss = sess.run([model.predict_out, model.loss], test_feed_dict)
 			test_losses.append(test_loss)
 			print("loss:", test_loss)
 
