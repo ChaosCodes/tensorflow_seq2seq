@@ -162,7 +162,7 @@ if __name__ == "__main__":
 					model.seq_targets_length: target_lens
 				}
 				
-				loss, _ = sess.run([model.total_loss, model.train_op], feed_dict)
+				loss, _ = sess.run([model.loss, model.train_op], feed_dict)
 				total_loss += loss
 				if batch % 10 == 0:
 					tight_losses.append(loss)
