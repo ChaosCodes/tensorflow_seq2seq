@@ -185,7 +185,7 @@ if __name__ == "__main__":
 						model.seq_targets: target_batch,
 						model.seq_targets_length: target_lens
 					}
-					predict_batch, val_loss = sess.run([test_model.out, test_model.loss], val_feed_dict)
+					predict_batch, val_loss = sess.run([model.out, model.loss], val_feed_dict)
 					val_losses.append(val_loss)
 					print("loss:", val_loss)
 
@@ -204,7 +204,7 @@ if __name__ == "__main__":
 				model.seq_targets: target_batch,
 				model.seq_targets_length: target_lens
 			}
-			predict_batch, test_loss = sess.run([test_model.out, test_model.loss], test_feed_dict)
+			predict_batch, test_loss = sess.run([test_model.out], test_feed_dict)
 			test_losses.append(test_loss)
 			print("loss:", test_loss)
 
