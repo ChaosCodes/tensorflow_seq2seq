@@ -22,23 +22,23 @@ class Seq2seq(object):
 			encoder_inputs_embedded = tf.nn.embedding_lookup(encoder_embedding, self.seq_inputs)
 			
 			# bi rnn
-			((encoder_fw_outputs, encoder_bw_outputs), (encoder_fw_final_state, encoder_bw_final_state)) = tf.nn.bidirectional_dynamic_rnn(
-				cell_fw=tf.contrib.rnn.DropoutWrapper(tf.nn.rnn_cell.GRUCell(config.hidden_dim), input_keep_prob=0.5), 
-				cell_bw=tf.contrib.rnn.DropoutWrapper(tf.nn.rnn_cell.GRUCell(config.hidden_dim), input_keep_prob=0.5), 
-				inputs=encoder_inputs_embedded, 
-				sequence_length=self.seq_inputs_length, 
-				dtype=tf.float32, 
-				time_major=False
-			)
-			encoder_state = tf.add(encoder_fw_final_state, encoder_bw_final_state)
-			encoder_outputs = tf.add(encoder_fw_outputs, encoder_bw_outputs)
+			# ((encoder_fw_outputs, encoder_bw_outputs), (encoder_fw_final_state, encoder_bw_final_state)) = tf.nn.bidirectional_dynamic_rnn(
+			# 	cell_fw=tf.contrib.rnn.DropoutWrapper(tf.nn.rnn_cell.GRUCell(config.hidden_dim), input_keep_prob=0.5), 
+			# 	cell_bw=tf.contrib.rnn.DropoutWrapper(tf.nn.rnn_cell.GRUCell(config.hidden_dim), input_keep_prob=0.5), 
+			# 	inputs=encoder_inputs_embedded, 
+			# 	sequence_length=self.seq_inputs_length, 
+			# 	dtype=tf.float32, 
+			# 	time_major=False
+			# )
+			# encoder_state = tf.add(encoder_fw_final_state, encoder_bw_final_state)
+			# encoder_outputs = tf.add(encoder_fw_outputs, encoder_bw_outputs)
 
 			# single rnn
 			# def get_cell(hidden_dim, drop_out):
 			# 	return tf.contrib.rnn.DropoutWrapper(tf.nn.rnn_cell.GRUCell(hidden_dim), input_keep_prob=drop_out)
-			# encoder_cell = tf.contrib.rnn.DropoutWrapper(tf.nn.rnn_cell.GRUCell(config.hidden_dim), input_keep_prob=0.5)
+			encoder_cell = tf.contrib.rnn.DropoutWrapper(tf.nn.rnn_cell.GRUCell(config.hidden_dim), input_keep_prob=0.5)
 			# encoder_cell = tf.nn.rnn_cell.MultiRNNCell([get_cell(config.hidden_dim, 0.5) for _ in range(size)])
-			# encoder_outputs, encoder_state = tf.nn.dynamic_rnn(encoder_cell, encoder_outputs, dtype=tf.float32)
+			encoder_outputs, encoder_state = tf.nn.dynamic_rnn(encoder_cell, encoder_outputs, dtype=tf.float32)
 		
 		with tf.variable_scope("decoder", reuse=tf.AUTO_REUSE):
 			
