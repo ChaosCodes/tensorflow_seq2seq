@@ -15,8 +15,8 @@ tf_config.gpu_options.allow_growth = True
 
 class Config(object):
 	embedding_dim = 20
-	hidden_dim = 200
-	batch_size = 40
+	hidden_dim = 2
+	batch_size = 4
 	learning_rate = 0.001
 	source_vocab_size = None
 	target_vocab_size = None
@@ -121,8 +121,8 @@ if __name__ == "__main__":
 	model = Seq2seq(config=config, w2i_target=w2i_target, useAttention=True)
 
 	print("(3) run model......")
-	batches = 3000
-	print_every = 100
+	batches = 30
+	print_every = 10
 	batch_num = 0
 	val_batch_num = 0
 	test_batch_num = 0
@@ -188,14 +188,13 @@ if __name__ == "__main__":
 						model.seq_targets: target_batch,
 						model.seq_targets_length: target_lens
 					}
-					output_batch, predict_batch, val_loss = sess.run([model.out, model.predict_out, model.loss], val_feed_dict)
+					output_batch, val_loss = sess.run([model.out, model.loss], val_feed_dict)
 					val_losses.append(val_loss)
 					print("loss:", val_loss)
 
 					for i in range(3):
 						print("in:", [i2w_source[num] for num in source_batch[i] if i2w_source[num] != "_PAD"])
 						print("out:",[i2w_target[num] for num in output_batch[i] if i2w_target[num] != "_PAD"])
-						print("predict:",[i2w_target[num] for num in predict_batch[i] if i2w_target[num] != "_PAD"])
 						print("tar:",[i2w_target[num] for num in target_batch[i] if i2w_target[num] != "_PAD"])
 						print("")
 
@@ -208,7 +207,7 @@ if __name__ == "__main__":
 				model.seq_targets: target_batch,
 				model.seq_targets_length: target_lens
 			}
-			predict_batch, test_loss = sess.run([model.predict_out, model.loss], test_feed_dict)
+			predict_batch, test_loss = sess.run([model.out, model.loss], test_feed_dict)
 			test_losses.append(test_loss)
 			print("loss:", test_loss)
 
