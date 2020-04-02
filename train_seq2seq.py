@@ -115,7 +115,7 @@ if __name__ == "__main__":
 	config.source_vocab_size = len(w2i_source)
 	config.target_vocab_size = len(w2i_target)
 	model = Seq2seq(config=config, w2i_target=w2i_target, useTeacherForcing=True, useAttention=True, useBeamSearch=1)
-	
+	test_model = Seq2seq(config=config, w2i_target=w2i_target, useTeacherForcing=True, useAttention=True, useBeamSearch=3)
 	
 	print("(3) run model......")
 	batches = 3000
@@ -131,10 +131,11 @@ if __name__ == "__main__":
 		saver = tf.train.Saver()
 		sess.run(tf.global_variables_initializer())
 		store_dir = make_store_path(config)
-		ensure_dir(store_dir)
+		store_path = os.path.join(os.path.abspath('.'), 'save_model', store_dir)
+		ensure_dir(store_path)
 		if load:
 			print('load the model')
-			ckpt = tf.train.get_checkpoint_state('save_model/' + store_dir)
+			ckpt = tf.train.get_checkpoint_state(os.path.join('save_model', store_dir))
 			if ckpt and ckpt.model_checkpoint_path:
 				saver.restore(sess, ckpt.model_checkpoint_path)
 				print('load the pretrained model parameters')
@@ -203,7 +204,7 @@ if __name__ == "__main__":
 				model.seq_targets: target_batch,
 				model.seq_targets_length: target_lens
 			}
-			predict_batch, test_loss = sess.run([model.out, model.loss], test_feed_dict)
+			predict_batch, test_loss = sess.run([test_model.out, test_model.loss], test_feed_dict)
 			test_losses.append(test_loss)
 			print("loss:", test_loss)
 
@@ -214,7 +215,8 @@ if __name__ == "__main__":
 				print("")
 
 			## save
-			saver.save(sess, os.path.join(os.path.abspath('.'), 'save_model', store_dir))
+			print('save in '+store_path)
+			saver.save(sess, os.path.join(store_path, 'seq2seq') )
 			print(f"save loss")
 			np.save(f'{store_dir}tight_losses', tight_losses)
 			np.save(f'{store_dir}loss', losses)

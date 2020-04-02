@@ -7,4 +7,4 @@ def ensure_dir(dir_path):
 
 
 def make_store_path(config):
-    return f'{config.embedding_dim}-{config.hidden_dim}-{config.batch_size}-config.learning_rate'
+    return f'{config.embedding_dim}-{config.hidden_dim}-{config.batch_size}-{config.learning_rate}'
