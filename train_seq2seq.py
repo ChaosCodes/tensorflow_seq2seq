@@ -11,13 +11,12 @@ from utils import ensure_dir, make_store_path
 
 tf_config = tf.ConfigProto(allow_soft_placement=True)
 tf_config.gpu_options.allow_growth = True 
-dataset_file = os.path.join(os.path.abspath('.'), 'dataset', 'COVID-brief-Dialogue.txt')
 
 
 class Config(object):
 	embedding_dim = 20
-	hidden_dim = 2
-	batch_size = 3
+	hidden_dim = 200
+	batch_size = 40
 	learning_rate = 0.001
 	source_vocab_size = None
 	target_vocab_size = None
@@ -106,6 +105,9 @@ if __name__ == "__main__":
 	args = load_arguments()
 	# set the gpu_id
 	os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu_id)
+	# set file
+	dataset_file = os.path.join(os.path.abspath('.'), 'dataset', 'COVID-brief-Dialogue.txt' if args.breif == 0 else 'COVID-Dialogue.txt')
+
 	print(f'train on the cuda {args.gpu_id}')
 	print("(1)load data......")
 	docs_source, docs_target, train_source, train_target, val_source, val_target, test_source, test_target = load_data(dataset_file)
@@ -119,12 +121,12 @@ if __name__ == "__main__":
 	model = Seq2seq(config=config, w2i_target=w2i_target, useAttention=True)
 
 	print("(3) run model......")
-	batches = 20
-	print_every = 10
+	batches = 3000
+	print_every = 100
 	batch_num = 0
 	val_batch_num = 0
 	test_batch_num = 0
-	epoch = 6
+	epoch = 500
 
 	load = True
 	with tf.Session(config=tf_config) as sess:
