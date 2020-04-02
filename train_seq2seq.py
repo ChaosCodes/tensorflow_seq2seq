@@ -106,6 +106,7 @@ if __name__ == "__main__":
 	args = load_arguments()
 	# set the gpu_id
 	os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu_id)
+	print(f'train on the cuda {args.gpu_id}')
 	print("(1)load data......")
 	docs_source, docs_target, train_source, train_target, val_source, val_target, test_source, test_target = load_data(dataset_file)
 	w2i_source, i2w_source = make_vocab(docs_source)
