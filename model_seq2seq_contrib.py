@@ -11,7 +11,7 @@ class Seq2seq(object):
 	
 	def __init__(self, config, w2i_target, useTeacherForcing=True, useAttention=True, useBeamSearch=1):
 		initializer = np.random.random_sample((config.source_vocab_size, config.embedding_dim)) - 0.5
-        self.word_init = initializer.astype(np.float32)
+		self.word_init = initializer.astype(np.float32)
 
 		self.build_inputs(config)
 		l2_reg=tf.contrib.layers.l2_regularizer(0.05)
