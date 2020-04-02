@@ -10,12 +10,14 @@ class Seq2seq(object):
 	
 	
 	def __init__(self, config, w2i_target, useTeacherForcing=True, useAttention=True, useBeamSearch=1):
-		
+		initializer = np.random.random_sample((config.source_vocab_size, config.embedding_dim)) - 0.5
+        self.word_init = initializer.astype(np.float32)
+
 		self.build_inputs(config)
 		l2_reg=tf.contrib.layers.l2_regularizer(0.05)
 		with tf.variable_scope("encoder", reuse=tf.AUTO_REUSE):
 		
-			encoder_embedding = tf.Variable(tf.random_uniform([config.source_vocab_size, config.embedding_dim]), dtype=tf.float32, name='encoder_embedding', regularizer=l2_reg)
+			encoder_embedding = tf.get_variable('encoder_embedding', initializer=self.word_init, dtype=tf.float32, regularizer=l2_reg)
 			encoder_inputs_embedded = tf.nn.embedding_lookup(encoder_embedding, self.seq_inputs)
 			
 			((encoder_fw_outputs, encoder_bw_outputs), (encoder_fw_final_state, encoder_bw_final_state)) = tf.nn.bidirectional_dynamic_rnn(
@@ -31,8 +33,7 @@ class Seq2seq(object):
 		
 		with tf.variable_scope("decoder", reuse=tf.AUTO_REUSE):
 			
-			decoder_embedding = tf.Variable(tf.random_uniform([config.target_vocab_size, config.embedding_dim]), dtype=tf.float32, name='decoder_embedding', regularizer=l2_reg)
-			
+			decoder_embedding = tf.get_variable('decoder_embedding', initializer=self.word_init, dtype=tf.float32, regularizer=l2_reg)
 			tokens_go = tf.ones([config.batch_size], dtype=tf.int32, name='tokens_GO') * w2i_target["_GO"]
 			
 			if useTeacherForcing:
