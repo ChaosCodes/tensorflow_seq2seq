@@ -10,7 +10,7 @@ from utils import ensure_dir, make_store_path
 
 tf_config = tf.ConfigProto(allow_soft_placement=True)
 tf_config.gpu_options.allow_growth = True 
-dataset_file = os.path.join(os.path.abspath('.'), 'dataset', 'COVID-Dialogue.txt')
+dataset_file = os.path.join(os.path.abspath('.'), 'dataset', 'COVID-brief-Dialogue.txt')
 
 # set the gpu_id
 os.environ["CUDA_VISIBLE_DEVICES"] = '2'
@@ -162,7 +162,7 @@ if __name__ == "__main__":
 					model.seq_targets_length: target_lens
 				}
 				
-				loss, _ = sess.run([model.loss, model.train_op], feed_dict)
+				loss, _ = sess.run([model.total_loss, model.train_op], feed_dict)
 				total_loss += loss
 				if batch % 10 == 0:
 					tight_losses.append(loss)
