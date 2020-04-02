@@ -97,10 +97,7 @@ class Seq2seq(object):
 			sequence_mask = tf.sequence_mask(self.seq_targets_length, dtype=tf.float32)
 
 			self.loss = tf.contrib.seq2seq.sequence_loss(logits=decoder_logits, targets=self.seq_targets, weights=sequence_mask)
-			self.predict_loss = tf.contrib.seq2seq.sequence_loss(logits=predict_decoder_logits, targets=self.seq_targets, weights=sequence_mask)
-			self.total_loss = self.loss + self.predict_loss
+			# self.predict_loss = tf.contrib.seq2seq.sequence_loss(logits=predict_decoder_logits, targets=self.seq_targets, weights=sequence_mask)
+			# self.total_loss = self.loss
 
-			self.train_op = tf.train.AdamOptimizer(learning_rate=config.learning_rate).minimize(self.total_loss)
-
-			predict_decoder_logits = predict_decoder_outputs.rnn_output
-			self.predict_out = tf.argmax(predict_decoder_logits, 2)
+			self.train_op = tf.train.AdamOptimizer(learning_rate=config.learning_rate).minimize(self.loss)
