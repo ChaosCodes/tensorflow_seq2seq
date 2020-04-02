@@ -19,7 +19,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = '2'
 class Config(object):
 	embedding_dim = 64
 	hidden_dim = 200
-	batch_size = 40
+	batch_size = 32
 	learning_rate = 0.002
 	source_vocab_size = None
 	target_vocab_size = None
@@ -117,7 +117,7 @@ if __name__ == "__main__":
 	model = Seq2seq(config=config, w2i_target=w2i_target, useTeacherForcing=True, useAttention=True, useBeamSearch=1)
 
 	print("(3) run model......")
-	batches = 1000
+	batches = 2000
 	print_every = 100
 	batch_num = 0
 	val_batch_num = 0
