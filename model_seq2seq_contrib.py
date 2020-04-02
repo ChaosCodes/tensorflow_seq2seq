@@ -16,7 +16,7 @@ class Seq2seq(object):
 
 		self.build_inputs(config)
 		l2_reg=tf.contrib.layers.l2_regularizer(0.05)
-		with tf.variable_scope("encoder", reuse=tf.AUTO_REUSE):
+		with tf.variable_scope("encoder"):
 		
 			encoder_embedding = tf.get_variable('encoder_embedding', initializer=self.word_init, dtype=tf.float32, regularizer=l2_reg)
 			encoder_inputs_embedded = tf.nn.embedding_lookup(encoder_embedding, self.seq_inputs)
@@ -43,9 +43,9 @@ class Seq2seq(object):
 		with tf.variable_scope("decoder", reuse=tf.AUTO_REUSE):
 			
 			decoder_embedding = tf.get_variable('decoder_embedding', initializer=self.word_init, dtype=tf.float32, regularizer=l2_reg)
-			tokens_go = tf.ones([config.batch_size], dtype=tf.int32, name='tokens_GO') * w2i_target["_GO"]
+			tokens_go = tf.fill([batch_size], w2i_target["_GO"])
 
-			decoder_inputs = tf.concat([tf.reshape(tokens_go,[-1,1]), self.seq_targets[:,:-1]], 1)
+			decoder_inputs = tf.concat([tf.reshape(tokens_go, [-1,1]), self.seq_targets[:,:-1]], 1)
 			train_helper = tf.contrib.seq2seq.TrainingHelper(tf.nn.embedding_lookup(decoder_embedding, decoder_inputs), self.seq_targets_length)
 
 			predict_helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(decoder_embedding, tokens_go, w2i_target["_EOS"])
