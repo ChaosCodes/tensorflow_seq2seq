@@ -157,7 +157,7 @@ if __name__ == "__main__":
 				source_batch, source_lens, target_batch, target_lens, batch_num = get_batch(train_source, w2i_source, train_target, w2i_target, config.batch_size, batch_num)
 				
 				feed_dict = {
-					model.dropout: 0.5
+					model.dropout: 0.5,
 					model.seq_inputs: source_batch,
 					model.seq_inputs_length: source_lens,
 					model.seq_targets: target_batch,
