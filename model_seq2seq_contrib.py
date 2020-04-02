@@ -13,7 +13,7 @@ class Seq2seq(object):
 		
 		self.build_inputs(config)
 		
-		with tf.variable_scope("encoder"):
+		with tf.variable_scope("encoder", reuse=tf.AUTO_REUSE):
 		
 			encoder_embedding = tf.Variable(tf.random_uniform([config.source_vocab_size, config.embedding_dim]), dtype=tf.float32, name='encoder_embedding')
 			encoder_inputs_embedded = tf.nn.embedding_lookup(encoder_embedding, self.seq_inputs)
@@ -29,7 +29,7 @@ class Seq2seq(object):
 			encoder_state = tf.add(encoder_fw_final_state, encoder_bw_final_state)
 			encoder_outputs = tf.add(encoder_fw_outputs, encoder_bw_outputs)
 		
-		with tf.variable_scope("decoder"):
+		with tf.variable_scope("decoder", reuse=tf.AUTO_REUSE):
 			
 			decoder_embedding = tf.Variable(tf.random_uniform([config.target_vocab_size, config.embedding_dim]), dtype=tf.float32, name='decoder_embedding')
 			
