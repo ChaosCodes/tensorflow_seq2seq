@@ -43,7 +43,7 @@ class Seq2seq(object):
 		with tf.variable_scope("decoder", reuse=tf.AUTO_REUSE):
 			
 			decoder_embedding = tf.get_variable('decoder_embedding', initializer=self.word_init, dtype=tf.float32, regularizer=l2_reg)
-			tokens_go = tf.fill([batch_size], w2i_target["_GO"])
+			tokens_go = tf.fill([config.batch_size], w2i_target["_GO"])
 
 			decoder_inputs = tf.concat([tf.reshape(tokens_go, [-1,1]), self.seq_targets[:,:-1]], 1)
 			train_helper = tf.contrib.seq2seq.TrainingHelper(tf.nn.embedding_lookup(decoder_embedding, decoder_inputs), self.seq_targets_length)
