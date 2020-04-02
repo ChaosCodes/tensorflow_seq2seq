@@ -15,8 +15,8 @@ tf_config.gpu_options.allow_growth = True
 
 class Config(object):
 	embedding_dim = 20
-	hidden_dim = 2
-	batch_size = 4
+	hidden_dim = 200
+	batch_size = 32
 	learning_rate = 0.001
 	source_vocab_size = None
 	target_vocab_size = None
@@ -121,8 +121,8 @@ if __name__ == "__main__":
 	model = Seq2seq(config=config, w2i_target=w2i_target, useAttention=True)
 
 	print("(3) run model......")
-	batches = 30
-	print_every = 10
+	batches = 3000
+	print_every = 100
 	batch_num = 0
 	val_batch_num = 0
 	test_batch_num = 0
