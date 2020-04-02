@@ -5,15 +5,13 @@ import time
 import os
 
 from model_seq2seq_contrib import Seq2seq
+from config import load_arguments
 from utils import ensure_dir, make_store_path
 # from model_seq2seq import Seq2seq
 
 tf_config = tf.ConfigProto(allow_soft_placement=True)
 tf_config.gpu_options.allow_growth = True 
 dataset_file = os.path.join(os.path.abspath('.'), 'dataset', 'COVID-brief-Dialogue.txt')
-
-# set the gpu_id
-os.environ["CUDA_VISIBLE_DEVICES"] = '2'
 
 
 class Config(object):
@@ -105,7 +103,9 @@ def get_batch(docs_source, w2i_source, docs_target, w2i_target, batch_size, batc
 	
 	
 if __name__ == "__main__":
-
+	args = load_arguments()
+	# set the gpu_id
+	os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu_id)
 	print("(1)load data......")
 	docs_source, docs_target, train_source, train_target, val_source, val_target, test_source, test_target = load_data(dataset_file)
 	w2i_source, i2w_source = make_vocab(docs_source)
