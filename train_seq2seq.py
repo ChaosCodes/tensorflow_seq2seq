@@ -118,7 +118,7 @@ if __name__ == "__main__":
 	config = Config()
 	config.source_vocab_size = len(w2i_source)
 	config.target_vocab_size = len(w2i_target)
-	model = Seq2seq(config=config, w2i_target=w2i_target, useAttention=True)
+	model = Seq2seq(config=config, w2i_target=w2i_target, useTeacherForcing=True useAttention=True)
 
 	print("(3) run model......")
 	batches = 3000

@@ -52,7 +52,7 @@ class Seq2seq(object):
 		return decoder_cell, decoder_initial_state
 		
 	
-	def __init__(self, config, w2i_target, useAttention=True, useBeamSearch=1):
+	def __init__(self, config, w2i_target, useTeacherForcing=True, useAttention=True, useBeamSearch=1):
 		initializer = np.random.random_sample((config.source_vocab_size, config.embedding_dim)) - 0.5
 		self.word_init = initializer.astype(np.float32)
 
@@ -70,10 +70,13 @@ class Seq2seq(object):
 			decoder_embedding = tf.get_variable('decoder_embedding', initializer=self.word_init, dtype=tf.float32, regularizer=l2_reg)
 			tokens_go = tf.fill([config.batch_size], w2i_target["_GO"])
 
-			decoder_inputs = tf.concat([tf.reshape(tokens_go, [-1,1]), self.seq_targets[:,:-1]], 1)
-			train_helper = tf.contrib.seq2seq.TrainingHelper(tf.nn.embedding_lookup(decoder_embedding, decoder_inputs), self.seq_targets_length)
-
-			predict_helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(decoder_embedding, tokens_go, w2i_target["_EOS"])
+			if useTeacherForcing:
+				decoder_inputs = tf.concat([tf.reshape(tokens_go,[-1,1]), self.seq_targets[:,:-1]], 1)
+				train_helper = tf.contrib.seq2seq.TrainingHelper(tf.nn.embedding_lookup(decoder_embedding, decoder_inputs), self.seq_targets_length)
+			else:
+				train_helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(decoder_embedding, tokens_go, w2i_target["_EOS"])
+			
+			# predict_helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(decoder_embedding, tokens_go, w2i_target["_EOS"])
 
 			with tf.variable_scope("gru_cell"):
 				decoder_cell = self.get_GRU_cell(self.config.hidden_dim, self.config.dropout)
