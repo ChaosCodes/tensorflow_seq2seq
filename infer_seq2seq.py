@@ -22,7 +22,7 @@ if __name__ == "__main__":
 	# set file
 	dataset_file = os.path.join(os.path.abspath('.'), 'dataset', 'COVID-brief-Dialogue.txt' if args.breif == 0 else 'COVID-Dialogue.txt')
 
-	docs_source, docs_target, _, _, _, _, _, _ = load_data(dataset_file)
+	docs_source, docs_target, _, _, _, _, _, _ = load_data(dataset_file, is_shuffle = False)
 	w2i_source, i2w_source = make_vocab(docs_source)
 	w2i_target, i2w_target = make_vocab(docs_target)
 	

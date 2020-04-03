@@ -23,7 +23,7 @@ class Config(object):
 	dropout = 0.5
 
 
-def load_data(path):
+def load_data(path, is_shuffle=True):
 	docs_source = []
 	docs_target = []
 
@@ -45,7 +45,8 @@ def load_data(path):
 					docs_target.append(current_sentence.split())
 				last_sentence = current_sentence
 		idx = list(range(len(docs_source)))
-		random.shuffle(idx)
+		if is_shuffle:
+			random.shuffle(idx)
 		train_idx = idx[:int(len(idx) * 0.9)]
 		val_idx = idx[int(len(idx) * 0.8): int(len(idx) * 0.9)]
 		test_idx = idx[int(len(idx) * 0.9):]
