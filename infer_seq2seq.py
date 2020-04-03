@@ -41,7 +41,7 @@ if __name__ == "__main__":
 	with tf.Session(config=tf_config) as sess:
 		saver = tf.train.Saver()
 		saver.restore(sess, store_path)
-		num = 0
+		num = 20
 		source_batch, source_lens, target_batch, target_lens, num = get_batch(docs_source, w2i_source, docs_target, w2i_target, config.batch_size, num)
 		max_target_len = max(target_lens)
 		feed_dict = {
@@ -53,7 +53,7 @@ if __name__ == "__main__":
 		
 		print("samples:\n")
 		predict_batch = sess.run(model.out, feed_dict)
-		for i in range(20,30):
+		for i in range(len(source_batch)):
 			print("in:", [i2w_source[num] for num in source_batch[i] if i2w_source[num] != "_PAD"])
 			print("out:",[i2w_target[num] for num in predict_batch[i] if i2w_target[num] != "_PAD"])
 			print("tar:",[i2w_target[num] for num in target_batch[i] if i2w_target[num] != "_PAD"])
