@@ -16,7 +16,7 @@ tf_config.gpu_options.allow_growth = True
 class Config(object):
 	embedding_dim = 20
 	hidden_dim = 200
-	batch_size = 32
+	batch_size = 31
 	learning_rate = 0.001
 	source_vocab_size = None
 	target_vocab_size = None
