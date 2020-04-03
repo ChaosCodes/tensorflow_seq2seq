@@ -41,8 +41,8 @@ if __name__ == "__main__":
 	with tf.Session(config=tf_config) as sess:
 		saver = tf.train.Saver()
 		saver.restore(sess, store_path)
-		
-		source_batch, source_lens, target_batch, target_lens = get_batch(docs_source, w2i_source, docs_target, w2i_target, config.batch_size)
+		num = 0
+		source_batch, source_lens, target_batch, target_lens, num = get_batch(docs_source, w2i_source, docs_target, w2i_target, config.batch_size, num)
 			
 		feed_dict = {
 			model.seq_inputs: source_batch,
