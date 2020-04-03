@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 import random
 import time
-from model_seq2seq_contrib import Seq2seq
+from model_seq2seq import Seq2seq
 from train_seq2seq import load_data, make_vocab, get_batch
 from train_seq2seq import Config
 from config import load_arguments
