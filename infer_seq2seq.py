@@ -34,7 +34,7 @@ if __name__ == "__main__":
 	
 	
 	print("(3) run model......")
-	max_target_len = 20
+	# max_target_len = 20
 	store_dir = make_store_path(config)
 	store_path = os.path.join(os.path.abspath('.'), 'save_model', store_dir, 'seq2seq')
 	
@@ -43,7 +43,7 @@ if __name__ == "__main__":
 		saver.restore(sess, store_path)
 		num = 0
 		source_batch, source_lens, target_batch, target_lens, num = get_batch(docs_source, w2i_source, docs_target, w2i_target, config.batch_size, num)
-			
+		max_target_len = max(target_lens)
 		feed_dict = {
 			model.seq_inputs: source_batch,
 			model.seq_inputs_length: source_lens,
